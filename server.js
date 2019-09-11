@@ -17,6 +17,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(multiparty());
 
+// Criando um novo middleware para tratar as requisições de preflight request
+// Preflight são requisições que, geralmente, atualizam dados: POST, PUT e DELETE.
+// Este middlware será executado em todas as funções, então posso trazer os res.setHeader() pra cá
+
+app.use(function(req, res, next) {
+
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Recebe e responde requisições de todas as origens
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Aceita estes verbos HTTP nas requisições
+    res.setHeader('Access-Control-Allow-Headers', 'content-type'); // Permite que a origem altere o content-type
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    next();
+});
+
 app.listen(4200, function() {
     console.log('Servidor online na porta 4200');
 });
@@ -33,7 +47,7 @@ app.get('/', function(req, res) {
 app.post('/api', function(req, res) {
     var formData = req.body;
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
 
     var new_filename = new Date().getTime() + '-' + req.files.arquivo.originalFilename;
     var path_origem = req.files.arquivo.path;
@@ -78,7 +92,7 @@ app.post('/api', function(req, res) {
 
 app.get('/api', function(req, res) {
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
 
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
@@ -133,6 +147,15 @@ app.get('/api/:id', function(req, res) {
 // PUT
 
 app.put('/api/:id', function(req, res) {
+
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+
+    var id = req.params.id;
+    var comentario = req.body.comentario;
+
+    res.send(comentario);
+
+    /*
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
             collection.update(
@@ -147,6 +170,7 @@ app.put('/api/:id', function(req, res) {
             );
         });
     });
+    */
 });
 
 // DELETE
