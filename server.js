@@ -56,10 +56,24 @@ app.get('/api', function(req, res) {
 // GET by ID
 
 app.get('/api/:id', function(req, res) {
+
+    // Os _id sempre tem 24 caracteres
+    // Se a requisição vier com um _id de 24, vai pesquisar e retornar (o documento ou vazio, caso não exista)
+    // Se a requisição vier com um _id diferente de 24 caracteres, vai quebrar. A validação abaixo verifica se é um objeto id válido.
+
+    if (!mongodb.ObjectID.isValid(req.params.id)) {
+        res.status(500).json({ status: 'ID inválido' });
+        return;
+    }
+
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
             collection.find(ObjectId(req.params.id)).toArray(function(err, results) {
-                res.json(results);
+                if (!results.length)
+                    res.status(404).json(results);
+                else
+                    res.json(results);
+
                 client.close();
             });
         });
