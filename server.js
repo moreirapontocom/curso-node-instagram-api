@@ -179,12 +179,24 @@ app.put('/api/:id', function(req, res) {
 // DELETE
 
 app.delete('/api/:id', function(req, res) {
+    var id = req.params.id;
+    console.log(id);
+
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
-            collection.remove({ _id: ObjectId(req.params.id) }, function(err, result) {
-                res.json({ status: 'ok' });
-                client.close();
-            });
+            // collection.remove({ _id: ObjectId(req.params.id) }, function(err, result) {
+            collection.update(
+                { },
+                { $pull: {
+                            comentarios: { id_comentario: ObjectId(id) }
+                        }
+                },
+                { multi: true },
+                function(err, result) {
+                    res.json({ status: 'ok' });
+                    client.close();
+                }
+            );
         });
     });
 });
