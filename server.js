@@ -65,3 +65,22 @@ app.get('/api/:id', function(req, res) {
         });
     });
 });
+
+// PUT
+
+app.put('/api/:id', function(req, res) {
+    db.open(function(err, client) {
+        client.collection('postagens', function(err, collection) {
+            collection.update(
+                { _id: ObjectId(req.params.id) },
+                { $set: { titulo: req.body.titulo } },
+                // { $set: req.body }, // Ou assim pra atualizar todos os campos
+                {}, // multi. default: false
+                function(err, result) {
+                    res.json({ status: 'ok' });
+                    client.close();
+                }
+            );
+        });
+    });
+});
