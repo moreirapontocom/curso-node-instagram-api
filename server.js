@@ -77,6 +77,9 @@ app.post('/api', function(req, res) {
 // GET
 
 app.get('/api', function(req, res) {
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
             collection.find().toArray(function(err, results) {
