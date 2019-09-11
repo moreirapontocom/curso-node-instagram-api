@@ -84,3 +84,16 @@ app.put('/api/:id', function(req, res) {
         });
     });
 });
+
+// DELETE
+
+app.delete('/api/:id', function(req, res) {
+    db.open(function(err, client) {
+        client.collection('postagens', function(err, collection) {
+            collection.remove({ _id: ObjectId(req.params.id) }, function(err, result) {
+                res.json({ status: 'ok' });
+                client.close();
+            });
+        });
+    });
+});
