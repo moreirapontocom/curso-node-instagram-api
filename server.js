@@ -153,14 +153,17 @@ app.put('/api/:id', function(req, res) {
     var id = req.params.id;
     var comentario = req.body.comentario;
 
-    res.send(comentario);
-
-    /*
     db.open(function(err, client) {
         client.collection('postagens', function(err, collection) {
             collection.update(
                 { _id: ObjectId(req.params.id) },
-                { $set: { titulo: req.body.titulo } },
+                { $push: { comentarios: {
+                            id_comentario: new ObjectId(),
+                            comentario: comentario
+                        }
+                    }
+                },
+                // { $set: { titulo: req.body.titulo } },
                 // { $set: req.body }, // Ou assim pra atualizar todos os campos
                 {}, // multi. default: false
                 function(err, result) {
@@ -170,7 +173,7 @@ app.put('/api/:id', function(req, res) {
             );
         });
     });
-    */
+
 });
 
 // DELETE
