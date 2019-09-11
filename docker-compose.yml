@@ -1,0 +1,32 @@
+# Docker-compose Node
+# Mantainer Lucas Moreira <moreirapontocom@gmail.com>
+# 
+
+version: "2"
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    container_name: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./volume/_data/:/data/db
+    networks:
+      - instagram
+  server:
+    depends_on:
+      - mongo
+    image: moreirapontocom/node:12.2.0
+    container_name: node
+    restart: always
+    ports:
+      - 4200:4200
+    volumes:
+      - ./volume/html/:/app
+    networks:
+      - instagram
+    command: /bin/bash -c "nodemon app"
+networks: 
+  instagram:
+    driver: bridge
