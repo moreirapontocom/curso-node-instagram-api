@@ -90,6 +90,19 @@ app.get('/api', function(req, res) {
     });
 });
 
+// GET IMAGES
+
+app.get('/image/:image', function(req, res) {
+    var image = req.params.image;
+
+    fs.readFile('./uploads/' + image, function(err, data) {
+        if (err) console.log(err);
+
+        res.writeHead(200, { 'content-type': 'image/png' });
+        res.end(data);
+    });
+});
+
 // GET by ID
 
 app.get('/api/:id', function(req, res) {
