@@ -1,7 +1,9 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
+    multiparty = require('connect-multiparty'),
     mongodb = require('mongodb'),
-    ObjectId = require('mongodb').ObjectId;
+    ObjectId = require('mongodb').ObjectId,
+    fs = require('fs');
 
 var app = express();
 
@@ -13,6 +15,7 @@ var db = new mongodb.Db(
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(multiparty());
 
 app.listen(4200, function() {
     console.log('Servidor online na porta 4200');
@@ -30,14 +33,45 @@ app.get('/', function(req, res) {
 app.post('/api', function(req, res) {
     var formData = req.body;
 
-    db.open(function(err, client) {
-        client.collection('postagens', function(err, collection) {
-            collection.insert(formData, function(err, result) {
-                res.json({ status: 'ok' });
-                client.close();
-            });
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    var new_filename = new Date().getTime() + '-' + req.files.arquivo.originalFilename;
+    var path_origem = req.files.arquivo.path;
+    var path_destino = 'uploads/' + new_filename;
+
+    // [Error: EXDEV: cross-device link not permitted, rename 'PATH DO ARQUIVO DE ORIGEM' -> 'PATH DE DESTINO']
+    // fs.rename(path_origem, path_destino, function(err) {
+    //     console.log('ERRO: ', err)
+    // });
+
+    // Lê o arquivo original
+    fs.readFile(path_origem, function(err, data) {
+
+        // Grava o novo arquivo
+        fs.writeFile(path_destino, data, function(err) {
+            if (!err) {
+
+                var inserir = {
+                    titulo: formData.titulo,
+                    url_imagem: new_filename
+                }
+
+                db.open(function(err, client) {
+                    client.collection('postagens', function(err, collection) {
+                        collection.insert(inserir, function(err, result) {
+                            res.json({ status: 'ok' });
+                            client.close();
+                        });
+                    });
+                });
+
+            }
         });
+
+        // Remove o arquivo original
+        fs.unlink(path_origem, function(err) {});
     });
+
 });
 
 // GET
